@@ -179,3 +179,40 @@ Convert natural language ICP to structured format.
 
 ### `GET /health`
 Check API health and configuration status.
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------------------
+What I changed:
+
+Added a .gitignore file – this tells Git to skip certain files when committing or pushing:
+
+venv/ → my virtual environment (not uploaded)
+
+__pycache__/ → Python cache files
+
+*.pyc → compiled Python files
+
+.env → environment variables (secrets)
+
+*.log → log files
+
+Added a README.md file from GitHub (created when I initialized the repo)
+
+What I did not change:
+
+All the code in experimental_ai_agent/ is untouched – every file is exactly as it was.
+
+My local folder still includes everything, including the venv/.
+
+I only removed the nested .git folder inside experimental_ai_agent/, which was causing the Git issues.
