@@ -9,6 +9,7 @@ function Results() {
   const [leads, setLeads] = useState([])
   const [sessionId, setSessionId] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [activeTab, setActiveTab] = useState('companies') // 'companies' or 'leads'
 
   useEffect(() => {
     // Load data from localStorage
@@ -108,8 +109,8 @@ function Results() {
     }
   ]
 
-  const dataFields = [
-    { key: 'company_name', label: 'Company Name' },
+  const companyDataFields = [
+    { key: 'name', label: 'Company Name' },
     { key: 'domain', label: 'Domain' },
     { key: 'industry', label: 'Industry' },
     { key: 'founded_year', label: 'Founded Year' },
@@ -132,16 +133,69 @@ function Results() {
     { key: 'signal_evidence', label: 'Signal Evidence' }
   ]
 
+  const leadDataFields = [
+    { key: 'contact_first_name', label: 'First Name' },
+    { key: 'contact_last_name', label: 'Last Name' },
+    { key: 'contact_title', label: 'Job Title' },
+    { key: 'contact_company', label: 'Company' },
+    { key: 'contact_email', label: 'Email' },
+    { key: 'contact_phone', label: 'Phone' },
+    { key: 'contact_linkedin_url', label: 'LinkedIn URL' },
+    { key: 'contact_twitter', label: 'Twitter' },
+    { key: 'contact_location', label: 'Location' },
+    { key: 'matched_persona', label: 'Matched Persona' },
+    { key: 'persona_confidence', label: 'Persona Match Confidence' },
+    { key: 'contact_recent_activity', label: 'Recent Activity' },
+    { key: 'contact_published_content', label: 'Published Content' }
+  ]
+
+  const currentData = activeTab === 'companies' ? companies : leads
+  const currentFields = activeTab === 'companies' ? companyDataFields : leadDataFields
+
   const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % companies.length)
+    setCurrentSlide((prev) => (prev + 1) % currentData.length)
   }
 
   const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + companies.length) % companies.length)
+    setCurrentSlide((prev) => (prev - 1 + currentData.length) % currentData.length)
   }
 
   const goToSlide = (index) => {
     setCurrentSlide(index)
+  }
+
+  const switchTab = (tab) => {
+    setActiveTab(tab)
+    setCurrentSlide(0) // Reset to first item when switching tabs
+  }
+
+  const formatFieldValue = (value) => {
+    if (value === null || value === undefined || value === '') {
+      return 'N/A'
+    }
+    if (Array.isArray(value)) {
+      return value.join(', ') || 'N/A'
+    }
+    if (typeof value === 'object') {
+      return JSON.stringify(value)
+    }
+    return String(value)
+  }
+
+  const getCardTitle = (item) => {
+    if (activeTab === 'companies') {
+      return item.name || item.company_name || 'Unknown Company'
+    } else {
+      return `${item.contact_first_name || ''} ${item.contact_last_name || ''}`.trim() || 'Unknown Contact'
+    }
+  }
+
+  const getCardSubtitle = (item) => {
+    if (activeTab === 'companies') {
+      return item.domain || 'No domain'
+    } else {
+      return item.contact_title || 'No title'
+    }
   }
 
   if (isLoading) {
@@ -225,58 +279,95 @@ function Results() {
               </svg>
               Back
             </button>
-            <h1 className="results-title">Company Intelligence Report</h1>
-            <p className="results-subtitle">
-              {companies.length} companies analyzed
-              {leads.length > 0 && ` • ${leads.length} leads generated`}
-              {sessionId && ` • Session: ${sessionId}`}
-            </p>
+            <div>
+              <h1 className="results-title">Intelligence Report</h1>
+              <p className="results-subtitle">
+                {companies.length} companies • {leads.length} leads
+                {sessionId && ` • Session: ${sessionId}`}
+              </p>
+            </div>
           </header>
 
-          <div className="carousel-container">
-            <button className="carousel-btn prev" onClick={prevSlide} aria-label="Previous">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <polyline points="15 18 9 12 15 6" />
+          {/* Tabs */}
+          <div className="tabs-container">
+            <button 
+              className={`tab-btn ${activeTab === 'companies' ? 'active' : ''}`}
+              onClick={() => switchTab('companies')}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <rect x="3" y="3" width="7" height="7" />
+                <rect x="14" y="3" width="7" height="7" />
+                <rect x="14" y="14" width="7" height="7" />
+                <rect x="3" y="14" width="7" height="7" />
               </svg>
+              Companies ({companies.length})
             </button>
+            <button 
+              className={`tab-btn ${activeTab === 'leads' ? 'active' : ''}`}
+              onClick={() => switchTab('leads')}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
+              Leads ({leads.length})
+            </button>
+          </div>
 
-            <div className="card-slide">
-              <div className="card-header">
-                <div className="company-title-section">
-                  <h2 className="company-name">{companies[currentSlide].company_name}</h2>
-                </div>
-                <p className="company-domain">{companies[currentSlide].domain}</p>
-              </div>
+          {currentData.length > 0 ? (
+            <>
+              <div className="carousel-container">
+                <button className="carousel-btn prev" onClick={prevSlide} aria-label="Previous">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <polyline points="15 18 9 12 15 6" />
+                  </svg>
+                </button>
 
-              <div className="card-body">
-                <div className="data-table">
-                  {dataFields.map((field) => (
-                    <div key={field.key} className="data-row">
-                      <div className="data-label">{field.label}</div>
-                      <div className="data-value">{companies[currentSlide][field.key]}</div>
+                <div className="card-slide">
+                  <div className="card-header">
+                    <div className="company-title-section">
+                      <h2 className="company-name">{getCardTitle(currentData[currentSlide])}</h2>
                     </div>
-                  ))}
+                    <p className="company-domain">{getCardSubtitle(currentData[currentSlide])}</p>
+                  </div>
+
+                  <div className="card-body">
+                    <div className="data-table">
+                      {currentFields.map((field) => (
+                        <div key={field.key} className="data-row">
+                          <div className="data-label">{field.label}</div>
+                          <div className="data-value">{formatFieldValue(currentData[currentSlide][field.key])}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
+
+                <button className="carousel-btn next" onClick={nextSlide} aria-label="Next">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </button>
               </div>
+
+              <div className="carousel-dots">
+                {currentData.map((_, index) => (
+                  <button
+                    key={index}
+                    className={`dot ${index === currentSlide ? 'active' : ''}`}
+                    onClick={() => goToSlide(index)}
+                    aria-label={`Go to slide ${index + 1}`}
+                  />
+                ))}
+              </div>
+            </>
+          ) : (
+            <div style={{ textAlign: 'center', padding: '3rem', color: 'white' }}>
+              <p>No {activeTab} found.</p>
             </div>
-
-            <button className="carousel-btn next" onClick={nextSlide} aria-label="Next">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <polyline points="9 18 15 12 9 6" />
-              </svg>
-            </button>
-          </div>
-
-          <div className="carousel-dots">
-            {companies.map((_, index) => (
-              <button
-                key={index}
-                className={`dot ${index === currentSlide ? 'active' : ''}`}
-                onClick={() => goToSlide(index)}
-                aria-label={`Go to slide ${index + 1}`}
-              />
-            ))}
-          </div>
+          )}
         </div>
       </div>
     </div>
