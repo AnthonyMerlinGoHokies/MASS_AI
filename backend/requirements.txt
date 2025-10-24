@@ -1,0 +1,29 @@
+# FastAPI and server
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+
+# Rate limiting
+slowapi==0.1.9
+
+# HTTP client (compatible with newer packages)
+httpx>=0.25.2
+
+# Data validation
+pydantic>=2.5.0
+pydantic-settings>=2.1.0
+
+# Environment variables
+python-dotenv>=1.0.0
+
+# Database (upgraded to support newer httpx)
+supabase>=2.9.0
+
+# LangChain and LangGraph
+langgraph>=0.0.26
+langchain-core>=0.1.25
+
+# AI Providers
+mistralai>=0.1.0
+
+# Utilities
+python-multipart==0.0.6

@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIOS AI Swarm Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { margin: 0; overflow-x: hidden; font-family: 'Sora', sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap');
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        .agent-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease-in-out;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+        .agent-card.active {
+            border-color: #38bdf8; /* flow-cyan */
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.5); /* glow effect */
+            transform: translateY(-5px) scale(1.02);
+        }
+        .agent-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 1rem;
+            border: 3px solid #6366f1; /* electric-blue */
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+            transition: all 0.3s ease-in-out;
+        }
+        .agent-card.active .agent-avatar {
+            border-color: #38bdf8;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.8);
+            transform: scale(1.1);
+        }
+        .flow-arrow {
+            position: absolute;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #38bdf8;
+            font-size: 2rem;
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+            opacity: 0;
+        }
+        .flow-arrow.active {
+            opacity: 1;
+            transform: scale(1.2);
+        }
+        .play-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 50%;
+            padding: 1rem;
+            cursor: pointer;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        .play-button:hover {
+            background: rgba(0, 0, 0, 0.9);
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .agent-avatar {
+                width: 60px;
+                height: 60px;
+            }
+            .agent-card {
+                padding: 1rem;
+            }
+            .flow-arrow {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-deep-navy to-electric-blue text-clean-white min-h-screen flex flex-col items-center justify-center p-4">
+    <div class="container text-center py-10">
+        <h2 class="text-4xl md:text-5xl lg:text-6xl font-black font-sora mb-6 bg-gradient-to-r from-flow-cyan to-prosperity-gold bg-clip-text text-transparent">
+            Your SIOS Swarm in Action
+        </h2>
+        <p class="text-lg md:text-xl text-clean-white/80 mb-10 max-w-3xl mx-auto">
+            See how specialized AI agents orchestrate every step from lead to closed-won, eliminating manual drag and maximizing flow.
+        </p>
+
+        <div class="bg-clean-white/10 p-6 rounded-2xl mb-12 shadow-xl border border-clean-white/20">
+            <h3 class="text-2xl font-bold text-flow-cyan mb-4">Scenario: Sarah's Solar Journey</h3>
+            <p class="text-lg text-clean-white/90">
+                Meet Sarah, a homeowner interested in Solar power. Watch how SIOS turns her curiosity into a confirmed installation, all without a single knock on the door.
+            </p>
+            <div class="mt-6 flex items-center justify-center">
+                <svg class="w-12 h-12 text-prosperity-gold animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m0-3H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span class="ml-3 text-xl font-semibold text-flow-cyan">New Lead Incoming!</span>
+            </div>
+        </div>
+
+        <div class="relative grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8 mb-16">
+            <div id="orchestrator-card" class="agent-card md:col-span-2 lg:col-span-4 active">
+                <img src="[PATH_TO_ORCHESTRATOR_AVATAR.png]" alt="Orchestrator Agent Avatar" class="agent-avatar border-prosperity-gold">
+                <h4 class="text-xl font-bold text-prosperity-gold">The Orchestrator</h4>
+                <p class="text-sm text-clean-white/70">The Conductor: Manages and synchronizes the entire swarm.</p>
+                <p class="text-xs text-clean-white/50 mt-2">Always active, ensuring seamless flow.</p>
+            </div>
+
+            <div id="arrow-orchestrator-scout" class="flow-arrow md:absolute md:top-[120%] md:left-1/2 md:-translate-x-1/2">
+                <svg class="w-8 h-8 md:w-10 md:h-10 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+            </div>
+
+            <div id="scout-card" class="agent-card">
+                <img src="[PATH_TO_SCOUT_AVATAR.png]" alt="Scout Agent Avatar" class="agent-avatar">
+                <h4 class="text-xl font-bold text-electric-blue">Scout</h4>
+                <p class="text-sm text-clean-white/70">Lead Prospecting & Enrichment: Uncovers hidden gems.</p>
+                <p class="text-xs text-clean-white/50 mt-2">Voice: Clear, articulate, inquisitive tone.</p>
+            </div>
+
+            <div id="arrow-scout-judge" class="flow-arrow md:absolute md:top-[120%] md:left-[33%] md:-translate-x-1/2 md:rotate-90 lg:rotate-0 lg:top-[50%] lg:left-[calc(25%+4rem)]">
+                <svg class="w-8 h-8 md:w-10 md:h-10 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+            </div>
+
+            <div id="judge-card" class="agent-card">
+                <img src="[PATH_TO_JUDGE_AVATAR.png]" alt="Judge Agent Avatar" class="agent-avatar">
+                <h4 class="text-xl font-bold text-electric-blue">Judge</h4>
+                <p class="text-sm text-clean-white/70">Lead Qualification & Scoring: Assesses potential.</p>
+                <p class="text-xs text-clean-white/50 mt-2">Voice: Confident, decisive, analytical tone.</p>
+            </div>
+
+            <div id="arrow-judge-sparky" class="flow-arrow md:absolute md:top-[120%] md:left-[66%] md:-translate-x-1/2 md:rotate-90 lg:rotate-0 lg:top-[50%] lg:left-[calc(50%+4rem)]">
+                <svg class="w-8 h-8 md:w-10 md:h-10 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+            </div>
+
+            <div id="sparky-card" class="agent-card">
+                <img src="[PATH_TO_SPARKY_AVATAR.png]" alt="Sparky Agent Avatar" class="agent-avatar">
+                <h4 class="text-xl font-bold text-electric-blue">Sparky</h4>
+                <p class="text-sm text-clean-white/70">Sales Communication: Drives engaging outreach.</p>
+                <p class="text-xs text-clean-white/50 mt-2">Voice: Enthusiastic, energetic, upbeat.</p>
+            </div>
+            
+            <div id="arrow-sparky-archivist" class="flow-arrow md:absolute md:top-[120%] md:left-[90%] md:-translate-x-1/2 md:rotate-90 lg:rotate-0 lg:top-[50%] lg:left-[calc(75%+4rem)]">
+                <svg class="w-8 h-8 md:w-10 md:h-10 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+            </div>
+
+            <div id="archivist-card" class="agent-card">
+                <img src="[PATH_TO_ARCHIVIST_AVATAR.png]" alt="Archivist Agent Avatar" class="agent-avatar">
+                <h4 class="text-xl font-bold text-electric-blue">Archivist</h4>
+                <p class="text-sm text-clean-white/70">CRM Automation: Organized, efficient record-keeper.</p>
+                <p class="text-xs text-clean-white/50 mt-2">Voice: Neutral, efficient tone.</p>
+            </div>
+
+            <div id="arrow-archivist-coordinator" class="flow-arrow md:absolute md:top-[220%] md:left-1/4 md:-translate-x-1/2 md:rotate-90 lg:rotate-0 lg:top-[150%] lg:left-[calc(25%+4rem)]">
+                <svg class="w-8 h-8 md:w-10 md:h-10 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+            </div>
+
+            <div id="coordinator-card" class="agent-card">
+                <img src="[PATH_TO_COORDINATOR_AVATAR.png]" alt="Coordinator Agent Avatar" class="agent-avatar">
+                <h4 class="text-xl font-bold text-electric-blue">Coordinator</h4>
+                <p class="text-sm text-clean-white/70">Scheduling & Calendar Management: Punctual assistant.</p>
+                <p class="text-xs text-clean-white/50 mt-2">Voice: Polite, clear, efficient tone.</p>
+            </div>
+
+            <div id="arrow-coordinator-oracle" class="flow-arrow md:absolute md:top-[220%] md:left-3/4 md:-translate-x-1/2 md:rotate-90 lg:rotate-0 lg:top-[150%] lg:left-[calc(50%+4rem)]">
+                <svg class="w-8 h-8 md:w-10 md:h-10 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+            </div>
+
+            <div id="oracle-card" class="agent-card">
+                <img src="[PATH_TO_ORACLE_AVATAR.png]" alt="Oracle Agent Avatar" class="agent-avatar">
+                <h4 class="text-xl font-bold text-electric-blue">Oracle</h4>
+                <p class="text-sm text-clean-white/70">Sales Analytics & Reporting: Insightful data scientist.</p>
+                <p class="text-xs text-clean-white/50 mt-2">Voice: Clear, authoritative tone.</p>
+            </div>
+        </div>
+
+        <div class="bg-clean-white/10 p-8 rounded-2xl shadow-xl border border-clean-white/20 mb-12">
+            <h3 class="text-3xl font-bold text-flow-cyan mb-6">Sarah's Journey: Step-by-Step</h3>
+            
+            <div id="step-1" class="step-section hidden mb-8 text-left">
+                <h4 class="text-2xl font-semibold text-prosperity-gold mb-3">1. Lead Acquisition & Enrichment (Scout)</h4>
+                <div class="flex items-start mb-4">
+                    <img src="[PATH_TO_SCOUT_AVATAR.png]" alt="Scout Avatar" class="w-20 h-20 rounded-full mr-4 border-2 border-flow-cyan">
+                    <div>
+                        <p class="text-lg text-clean-white/90 mb-2">
+                            <span class="font-bold text-flow-cyan">Scout:</span> "Hello, I'm Scout, your meticulous data detective. I've identified Sarah as a high-potential lead for solar, enriching her profile with key details like her property type, average utility bills, and expressed interest in reducing energy costs."
+                        </p>
+                        <ul class="list-disc list-inside text-sm text-clean-white/70">
+                            <li>Data Point: Property Type - Residential</li>
+                            <li>Data Point: Average Utility Bill - $250/month (High)</li>
+                            <li>Data Point: Expressed Interest - Lowering energy costs</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="bg-clean-white/5 p-4 rounded-lg text-sm italic text-clean-white/60">
+                    <p>Trigger: Sarah visits your website, browsing solar solution pages.</p>
+                    <p>Outcome: Sarah's profile is built and enriched automatically, then passed to the Orchestrator.</p>
+                </div>
+            </div>
+
+            <div id="step-2" class="step-section hidden mb-8 text-left">
+                <h4 class="text-2xl font-semibold text-prosperity-gold mb-3">2. Qualification & Scoring (Judge)</h4>
+                <div class="flex items-start mb-4">
+                    <img src="[PATH_TO_JUDGE_AVATAR.png]" alt="Judge Avatar" class="w-20 h-20 rounded-full mr-4 border-2 border-flow-cyan">
+                    <div>
+                        <p class="text-lg text-clean-white/90 mb-2">
+                            <span class="font-bold text-flow-cyan">Judge:</span> "As Judge, I've rigorously evaluated Sarah's enriched profile against our qualification criteria. Her high utility bills and clear intent make her a prime candidate, scoring her as a hot lead, ready for personalized outreach."
+                        </p>
+                        <div class="text-sm text-clean-white/70 flex items-center mt-2">
+                            <span class="mr-2">Lead Score:</span>
+                            <div class="w-32 h-4 bg-gray-700 rounded-full overflow-hidden">
+                                <div class="h-full bg-green-500 rounded-full" style="width: 90%;"></div>
+                            </div>
+                            <span class="ml-2 font-bold text-green-400">90% - Hot Lead!</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-clean-white/5 p-4 rounded-lg text-sm italic text-clean-white/60">
+                    <p>Trigger: Enriched lead from Scout.</p>
+                    <p>Outcome: Lead scored and prioritized, passed to the Orchestrator for communication strategy.</p>
+                </div>
+            </div>
+
+            <div id="step-3" class="step-section hidden mb-8 text-left">
+                <h4 class="text-2xl font-semibold text-prosperity-gold mb-3">3. Personalized Engagement (Sparky)</h4>
+                <div class="flex items-start mb-4">
+                    <img src="[PATH_TO_SPARKY_AVATAR.png]" alt="Sparky Avatar" class="w-20 h-20 rounded-full mr-4 border-2 border-flow-cyan">
+                    <div>
+                        <p class="text-lg text-clean-white/90 mb-2">
+                            <span class="font-bold text-flow-cyan">Sparky:</span> "Hi Sarah! Sparky here from SIOS Solar Solutions. We noticed your interest in solar, and I'm excited to share how our frictionless process can drastically cut your energy bills. Ready for a quick chat to see your potential savings?"
+                        </p>
+                        <p class="text-sm text-clean-white/70 mb-4">Sarah receives a personalized email with Sparky's video message:</p>
+                        
+                        <div class="relative w-full max-w-md mx-auto aspect-video bg-black rounded-lg overflow-hidden shadow-lg border border-flow-cyan">
+                            <video id="sparkyVideo" controls preload="none" class="w-full h-full">
+                                <source src="[PATH_TO_SPARKY_VIDEO.mp4]" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                            <div id="playOverlay" class="play-button text-clean-white">
+                                <svg class="w-16 h-16" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 5v14l11-7z"></path></svg>
+                            </div>
+                        </div>
+                        <p class="text-sm text-clean-white/70 mt-4">Simulated Response: <span class="italic font-semibold">"Yes, tell me more!"</span></p>
+                    </div>
+                </div>
+                <div class="bg-clean-white/5 p-4 rounded-lg text-sm italic text-clean-white/60">
+                    <p>Trigger: Lead qualified as hot by Judge.</p>
+                    <p>Outcome: Personalized video message sent (email/SMS), engaging Sarah and prompting a response.</p>
+                </div>
+            </div>
+
+            <div id="step-4" class="step-section hidden mb-8 text-left">
+                <h4 class="text-2xl font-semibold text-prosperity-gold mb-3">4. CRM & Scheduling Automation (Archivist & Coordinator)</h4>
+                <div class="flex items-start mb-4">
+                    <img src="[PATH_TO_ARCHIVIST_AVATAR.png]" alt="Archivist Avatar" class="w-20 h-20 rounded-full mr-4 border-2 border-flow-cyan">
+                    <div>
+                        <p class="text-lg text-clean-white/90 mb-2">
+                            <span class="font-bold text-flow-cyan">Archivist:</span> "Archivist here, ensuring every interaction and data point from Sarah's engagement is meticulously logged in your CRM. This keeps your pipeline spotless and your data always accurate."
+                        </p>
+                    </div>
+                </div>
+                <div class="flex items-start mb-4">
+                    <img src="[PATH_TO_COORDINATOR_AVATAR.png]" alt="Coordinator Avatar" class="w-20 h-20 rounded-full mr-4 border-2 border-flow-cyan">
+                    <div>
+                        <p class="text-lg text-clean-white/90 mb-2">
+                            <span class="font-bold text-flow-cyan">Coordinator:</span> "And I, Coordinator, have seamlessly scheduled Sarah's personalized demo with 'Professor' at her preferred time, syncing with all relevant calendars. Frictionless scheduling, guaranteed."
+                        </p>
+                        <p class="text-sm text-clean-white/70">Simulated Calendar Event: <span class="italic font-semibold">"Solar Demo with Professor - June 25th, 2:00 PM EST"</span></p>
+                    </div>
+                </div>
+                <div class="bg-clean-white/5 p-4 rounded-lg text-sm italic text-clean-white/60">
+                    <p>Trigger: Prospect engagement and expressed interest in next steps.</p>
+                    <p>Outcome: All lead data updated in CRM, follow-up meeting scheduled automatically.</p>
+                </div>
+            </div>
+
+            <div id="step-5" class="step-section hidden mb-8 text-left">
+                <h4 class="text-2xl font-semibold text-prosperity-gold mb-3">5. Performance Insights (Oracle)</h4>
+                <div class="flex items-start mb-4">
+                    <img src="[PATH_TO_ORACLE_AVATAR.png]" alt="Oracle Avatar" class="w-20 h-20 rounded-full mr-4 border-2 border-flow-cyan">
+                    <div>
+                        <p class="text-lg text-clean-white/90 mb-2">
+                            <span class="font-bold text-flow-cyan">Oracle:</span> "I am Oracle, the insightful data scientist. I provide continuous analytics, showing how Sarah's journey, and thousands like hers, contribute to your overall sales performance. Our current insights show a significant boost in deal velocity and conversion rates for leads engaged by Sparky."
+                        </p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                            <div class="bg-clean-white/5 p-4 rounded-lg shadow-inner">
+                                <p class="text-sm text-clean-white/70">Deal Velocity Increase:</p>
+                                <p class="text-xl font-bold text-green-400">↑ 300%</p>
+                            </div>
+                            <div class="bg-clean-white/5 p-4 rounded-lg shadow-inner">
+                                <p class="text-sm text-clean-white/70">Sparky Engagement Conversion:</p>
+                                <p class="text-xl font-bold text-green-400">↑ 45%</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-clean-white/5 p-4 rounded-lg text-sm italic text-clean-white/60">
+                    <p>Trigger: Ongoing sales activities and data collection.</p>
+                    <p>Outcome: Human managers gain actionable insights for strategic refinement.</p>
+                </div>
+            </div>
+
+            <div class="flex justify-center gap-4 mt-12">
+                <button id="prevStep" class="px-6 py-3 bg-flow-cyan/20 text-flow-cyan rounded-full font-semibold hover:bg-flow-cyan/30 transition-colors" disabled>Previous</button>
+                <button id="nextStep" class="px-6 py-3 bg-prosperity-gold text-deep-navy rounded-full font-semibold hover:bg-prosperity-gold/90 transition-colors">Next Step</button>
+            </div>
+        </div>
+
+        <div class="bg-gradient-to-r from-flow-cyan/20 to-prosperity-gold/20 p-8 rounded-2xl shadow-2xl border border-electric-blue/30 mt-12">
+            <h3 class="text-3xl font-bold text-clean-white mb-4">Ready to Unleash Your Own Sales Swarm?</h3>
+            <p class="text-lg text-clean-white/80 mb-8">Ignite prosperity. Eliminate friction. Scale your sales like never before.</p>
+            <div class="flex flex-col md:flex-row justify-center gap-6">
+                <button class="px-8 py-4 bg-gradient-to-r from-flow-cyan to-electric-blue text-clean-white rounded-full text-xl font-bold hover:from-flow-cyan/90 hover:to-electric-blue/90 transition-all duration-300 shadow-lg">
+                    Get a Custom Demo
+                </button>
+                <button class="px-8 py-4 bg-clean-white/20 text-clean-white rounded-full text-xl font-bold border border-clean-white/30 hover:bg-clean-white/30 transition-all duration-300 shadow-lg">
+                    See Pricing Plans
+                </button>
+            </div>
+            <p class="text-xs text-clean-white/50 mt-8 italic">
+                *This demo illustrates the capabilities of our AI Sales Agent Swarm. Actual interactions are dynamic and real-time via our platform.*
+            </p>
+        </div>
+    </div>
+
+    <script>
+        const steps = ['orchestrator', 'scout', 'judge', 'sparky', 'archivist', 'coordinator', 'oracle'];
+        let currentStepIndex = 0;
+
+        const orchestratorCard = document.getElementById('orchestrator-card');
+        const prevBtn = document.getElementById('prevStep');
+        const nextBtn = document.getElementById('nextStep');
+        const sparkyVideo = document.getElementById('sparkyVideo');
+        const playOverlay = document.getElementById('playOverlay');
+
+        function updateDemo() {
+            // Deactivate all agent cards and hide all step sections first
+            document.querySelectorAll('.agent-card').forEach(card => card.classList.remove('active'));
+            document.querySelectorAll('.flow-arrow').forEach(arrow => arrow.classList.remove('active'));
+            document.querySelectorAll('.step-section').forEach(section => section.classList.add('hidden'));
+
+            // Always keep Orchestrator active as the central point
+            orchestratorCard.classList.add('active');
+
+            if (currentStepIndex === 0) {
+                // Initial state, show only Orchestrator implicitly, and the scenario setup
+                document.getElementById('step-1').classList.remove('hidden'); // Show first step content initially
+                prevBtn.disabled = true;
+                nextBtn.textContent = 'Start Demo';
+            } else if (currentStepIndex > 0) {
+                const activeAgentId = steps[currentStepIndex];
+                const activeCard = document.getElementById(`${activeAgentId}-card`);
+                if (activeCard) activeCard.classList.add('active');
+
+                const activeStepSection = document.getElementById(`step-${currentStepIndex}`);
+                if (activeStepSection) activeStepSection.classList.remove('hidden');
+
+                // Activate specific arrows based on the flow
+                if (currentStepIndex === 1) document.getElementById('arrow-orchestrator-scout').classList.add('active');
+                if (currentStepIndex === 2) document.getElementById('arrow-scout-judge').classList.add('active');
+                if (currentStepIndex === 3) document.getElementById('arrow-judge-sparky').classList.add('active');
+                if (currentStepIndex === 4) document.getElementById('arrow-sparky-archivist').classList.add('active');
+                if (currentStepIndex === 5) document.getElementById('arrow-archivist-coordinator').classList.add('active');
+                if (currentStepIndex === 6) document.getElementById('arrow-coordinator-oracle').classList.add('active');
+
+                prevBtn.disabled = false;
+                if (currentStepIndex === steps.length - 1) {
+                    nextBtn.textContent = 'Restart Demo';
+                } else {
+                    nextBtn.textContent = 'Next Step';
+                }
+            }
+
+            // Handle video state for Sparky
+            if (sparkyVideo) {
+                if (currentStepIndex === 3) {
+                    sparkyVideo.load(); // Reload video to reset
+                    playOverlay.style.display = 'flex'; // Show play button
+                } else {
+                    sparkyVideo.pause();
+                    sparkyVideo.currentTime = 0;
+                    playOverlay.style.display = 'none';
+                }
+            }
+        }
+
+        nextBtn.addEventListener('click', () => {
+            if (currentStepIndex < steps.length - 1) {
+                currentStepIndex++;
+            } else {
+                currentStepIndex = 0; // Loop back to start
+            }
+            updateDemo();
+        });
+
+        prevBtn.addEventListener('click', () => {
+            if (currentStepIndex > 0) {
+                currentStepIndex--;
+            }
+            updateDemo();
+        });
+
+        if (playOverlay) {
+            playOverlay.addEventListener('click', () => {
+                if (sparkyVideo) {
+                    sparkyVideo.play();
+                    playOverlay.style.display = 'none';
+                }
+            });
+            sparkyVideo.addEventListener('ended', () => {
+                playOverlay.style.display = 'flex'; // Show play button again after video ends
+            });
+        }
+        
+
+        // Initialize the demo
+        updateDemo();
+    </script>
+</body>
+</html>

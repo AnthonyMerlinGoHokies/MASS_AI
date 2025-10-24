@@ -1,0 +1,11 @@
+
+project_id = "axsnkfessfornzszswxm"
+
+[functions.send-waitlist-confirmation-trigger]
+verify_jwt = false
+
+[functions.send-engagement-email]
+verify_jwt = false
+
+[functions.chat-ai]
+verify_jwt = false
