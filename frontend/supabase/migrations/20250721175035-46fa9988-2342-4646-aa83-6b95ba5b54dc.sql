@@ -1,6 +1,0 @@
--- Set the service role key as a database setting so the trigger can use it
--- This allows the database trigger to authenticate with the edge function
-SELECT pg_catalog.set_config('app.settings.service_role_key', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF4c25rZmVzc2Zvcm56c3pzd3htIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NDkwNzQzNCwiZXhwIjoyMDYwNDgzNDM0fQ.wWqgdFAhCWxJJUC7jDp6Uo5uJdDGKbMTx5Ij2wGvqwE', false);
-
--- Make the setting persistent across sessions
-ALTER DATABASE postgres SET app.settings.service_role_key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF4c25rZmVzc2Zvcm56c3pzd3htIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0NDkwNzQzNCwiZXhwIjoyMDYwNDgzNDM0fQ.wWqgdFAhCWxJJUC7jDp6Uo5uJdDGKbMTx5Ij2wGvqwE';
